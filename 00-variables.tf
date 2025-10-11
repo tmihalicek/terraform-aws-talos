@@ -193,12 +193,6 @@ variable "external_cloud_provider_manifest" {
   type        = string
 }
 
-variable "enable_ebs_csi_driver" {
-  default     = false
-  description = "Whether to enable AWS EBS CSI Driver support. See https://github.com/kubernetes-sigs/aws-ebs-csi-driver"
-  type        = bool
-}
-
 variable "deploy_ebs_csi_driver_iam_policies" {
   default     = false
   description = "Whether to auto-deploy the EBS CSI Driver-required IAM policies. See https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/install.md"
