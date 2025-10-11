@@ -192,3 +192,31 @@ variable "external_cloud_provider_manifest" {
   description = "externalCloudProvider manifest to be applied if var.enable_external_cloud_provider is enabled. If you want to deploy it manually (e.g., via Helm chart), enable var.enable_external_cloud_provider but set this value to an empty string (\"\"). See https://kubernetes.io/docs/tasks/administer-cluster/running-cloud-controller/."
   type        = string
 }
+
+variable "enable_ebs_csi_driver" {
+  default     = false
+  description = "Whether to enable AWS EBS CSI Driver support. See https://github.com/kubernetes-sigs/aws-ebs-csi-driver"
+  type        = bool
+}
+
+variable "deploy_ebs_csi_driver_iam_policies" {
+  default     = false
+  description = "Whether to auto-deploy the EBS CSI Driver-required IAM policies. See https://github.com/kubernetes-sigs/aws-ebs-csi-driver/blob/master/docs/install.md"
+  type        = bool
+  validation {
+    condition     = (var.deploy_ebs_csi_driver_iam_policies && var.enable_ebs_csi_driver) || (!var.deploy_ebs_csi_driver_iam_policies)
+    error_message = "EBS CSI Driver support needs to be enabled when trying to deploy the EBS CSI Driver-required IAM policies."
+  }
+}
+
+variable "ebs_csi_driver_manifest" {
+  default     = "https://raw.githubusercontent.com/kubernetes-sigs/aws-ebs-csi-driver/master/deploy/kubernetes/overlays/stable/ecr/kustomization.yaml"
+  description = "EBS CSI Driver manifest to be applied if var.enable_ebs_csi_driver is enabled. If you want to deploy it manually (e.g., via Helm chart), enable var.enable_ebs_csi_driver but set this value to an empty string (\"\")."
+  type        = string
+}
+
+variable "iam_instance_profile_ebs_csi" {
+  default     = null
+  description = "IAM instance profile to attach to the instances to give EBS CSI Driver the sufficient rights to execute."
+  type        = string
+}
