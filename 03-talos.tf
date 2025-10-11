@@ -1,3 +1,20 @@
+locals {
+  ebs_csi_driver_patch = var.enable_ebs_csi_driver ? [
+    {
+      op    = "add"
+      path  = "/machine/kubelet/extraMounts"
+      value = [
+        {
+          destination = "/var/lib/kubelet/plugins"
+          type        = "bind"
+          source      = "/var/lib/kubelet/plugins"
+          options     = ["bind", "rshared", "rw"]
+        }
+      ]
+    }
+  ] : []
+}
+
 # https://cloud-provider-aws.sigs.k8s.io/prerequisites/
 resource "aws_iam_policy" "control_plane_ccm_policy" {
   count = var.enable_external_cloud_provider && var.deploy_external_cloud_provider_iam_policies ? 1 : 0
