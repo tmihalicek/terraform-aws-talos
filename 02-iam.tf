@@ -1,9 +1,12 @@
+# EBS CSI Driver IAM Policy
+# This policy will be attached to EC2 instance roles via the EC2 module in 03-talos.tf
+# The attachment happens through the iam_role_policies parameter in the ec2-instance module
 resource "aws_iam_policy" "ebs_csi_driver" {
   count       = var.deploy_ebs_csi_driver_iam_policies ? 1 : 0
   name        = "${var.cluster_name}-ebs-csi-driver-policy"
   description = "IAM policy for EBS CSI Driver"
   tags        = var.tags
-
+  
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -139,16 +142,7 @@ resource "aws_iam_policy" "ebs_csi_driver" {
   })
 }
 
-# Attach EBS CSI policy to control plane role
-resource "aws_iam_role_policy_attachment" "ebs_csi_control_plane" {
-  count      = var.deploy_ebs_csi_driver_iam_policies ? 1 : 0
-  role       = aws_iam_role.control_plane[0].name
-  policy_arn = aws_iam_policy.ebs_csi_driver[0].arn
-}
-
-# Attach EBS CSI policy to worker role
-resource "aws_iam_role_policy_attachment" "ebs_csi_worker" {
-  count      = var.deploy_ebs_csi_driver_iam_policies ? 1 : 0
-  role       = aws_iam_role.worker[0].name
-  policy_arn = aws_iam_policy.ebs_csi_driver[0].arn
-}
+# NOTE: DO NOT add aws_iam_role_policy_attachment resources here!
+# The policy attachment is handled automatically in 03-talos.tf via the 
+# EC2 module's iam_role_policies parameter. The EC2 module creates the 
+# IAM roles and attaches the policies we specify.
