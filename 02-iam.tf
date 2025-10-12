@@ -383,7 +383,7 @@ resource "aws_iam_policy" "aws_load_balancer_controller" {
           "elasticloadbalancing:ModifyListener",
           "elasticloadbalancing:AddListenerCertificates",
           "elasticloadbalancing:RemoveListenerCertificates",
-          "elasticloadbalancing:ModifyRule"
+          "elasticloadbalancing:ModifyRule",
           "elasticloadbalancing:DescribeListenerAttributes"
         ]
         Resource = "*"
