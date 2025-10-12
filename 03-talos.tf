@@ -126,17 +126,26 @@ module "talos_control_plane_nodes" {
   tags                        = merge(var.tags, local.cluster_required_tags)
   metadata_options            = var.metadata_options
   ignore_ami_changes          = true
-  # Create IAM profile if CCM or EBS CSI policies are enabled
-  create_iam_instance_profile = (var.enable_external_cloud_provider && var.deploy_external_cloud_provider_iam_policies) || (var.enable_ebs_csi_driver && var.deploy_ebs_csi_driver_iam_policies)
-  iam_instance_profile        = var.iam_instance_profile_control_plane
-  iam_role_use_name_prefix    = false
-  # Attach all enabled policies to the IAM role
+  
+  # Create IAM profile if any AWS controller IAM policies are enabled
+  create_iam_instance_profile = (
+    (var.enable_external_cloud_provider && var.deploy_external_cloud_provider_iam_policies) ||
+    (var.enable_ebs_csi_driver && var.deploy_ebs_csi_driver_iam_policies) ||
+    (var.enable_aws_load_balancer_controller && var.deploy_aws_load_balancer_controller_iam_policies)
+  )
+  iam_instance_profile     = var.iam_instance_profile_control_plane
+  iam_role_use_name_prefix = false
+  
+  # Merge all enabled IAM policies
   iam_role_policies = merge(
     var.enable_external_cloud_provider && var.deploy_external_cloud_provider_iam_policies ? {
       "${var.cluster_name}-control-plane-ccm-policy" : aws_iam_policy.control_plane_ccm_policy[0].arn,
     } : {},
     var.enable_ebs_csi_driver && var.deploy_ebs_csi_driver_iam_policies ? {
       "${var.cluster_name}-control-plane-ebs-csi-policy" : aws_iam_policy.ebs_csi_driver[0].arn,
+    } : {},
+    var.enable_aws_load_balancer_controller && var.deploy_aws_load_balancer_controller_iam_policies ? {
+      "${var.cluster_name}-control-plane-alb-controller-policy" : aws_iam_policy.aws_load_balancer_controller[0].arn,
     } : {}
   )
 
@@ -161,17 +170,26 @@ module "talos_worker_group" {
   tags                        = merge(each.value.tags, var.tags, local.cluster_required_tags)
   metadata_options            = var.metadata_options
   ignore_ami_changes          = true
-  # Create IAM profile if CCM or EBS CSI policies are enabled
-  create_iam_instance_profile = (var.enable_external_cloud_provider && var.deploy_external_cloud_provider_iam_policies) || (var.enable_ebs_csi_driver && var.deploy_ebs_csi_driver_iam_policies)
-  iam_instance_profile        = var.iam_instance_profile_worker
-  iam_role_use_name_prefix    = false
-  # Attach all enabled policies to the IAM role
+  
+  # Create IAM profile if any AWS controller IAM policies are enabled
+  create_iam_instance_profile = (
+    (var.enable_external_cloud_provider && var.deploy_external_cloud_provider_iam_policies) ||
+    (var.enable_ebs_csi_driver && var.deploy_ebs_csi_driver_iam_policies) ||
+    (var.enable_aws_load_balancer_controller && var.deploy_aws_load_balancer_controller_iam_policies)
+  )
+  iam_instance_profile     = var.iam_instance_profile_worker
+  iam_role_use_name_prefix = false
+  
+  # Merge all enabled IAM policies
   iam_role_policies = merge(
     var.enable_external_cloud_provider && var.deploy_external_cloud_provider_iam_policies ? {
       "${var.cluster_name}-worker-ccm-policy" : aws_iam_policy.worker_ccm_policy[0].arn,
     } : {},
     var.enable_ebs_csi_driver && var.deploy_ebs_csi_driver_iam_policies ? {
       "${var.cluster_name}-worker-ebs-csi-policy" : aws_iam_policy.ebs_csi_driver[0].arn,
+    } : {},
+    var.enable_aws_load_balancer_controller && var.deploy_aws_load_balancer_controller_iam_policies ? {
+      "${var.cluster_name}-worker-alb-controller-policy" : aws_iam_policy.aws_load_balancer_controller[0].arn,
     } : {}
   )
 
