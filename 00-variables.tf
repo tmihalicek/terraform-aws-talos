@@ -214,3 +214,25 @@ variable "iam_instance_profile_ebs_csi" {
   description = "IAM instance profile to attach to the instances to give EBS CSI Driver the sufficient rights to execute."
   type        = string
 }
+
+variable "enable_aws_load_balancer_controller" {
+  default     = false
+  description = "Whether to enable AWS Load Balancer Controller IAM policies. The controller must be deployed separately. See https://kubernetes-sigs.github.io/aws-load-balancer-controller/"
+  type        = bool
+}
+
+variable "deploy_aws_load_balancer_controller_iam_policies" {
+  default     = false
+  description = "Whether to auto-deploy the AWS Load Balancer Controller-required IAM policies and attach them to EC2 instances. See https://kubernetes-sigs.github.io/aws-load-balancer-controller/latest/deploy/installation/"
+  type        = bool
+  validation {
+    condition     = (var.deploy_aws_load_balancer_controller_iam_policies && var.enable_aws_load_balancer_controller) || (!var.deploy_aws_load_balancer_controller_iam_policies)
+    error_message = "AWS Load Balancer Controller support needs to be enabled when trying to deploy the AWS Load Balancer Controller-required IAM policies."
+  }
+}
+
+variable "iam_instance_profile_aws_load_balancer_controller" {
+  default     = null
+  description = "IAM instance profile to attach to the instances to give AWS Load Balancer Controller the sufficient rights to execute."
+  type        = string
+}
