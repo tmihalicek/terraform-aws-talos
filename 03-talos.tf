@@ -170,6 +170,7 @@ module "talos_worker_group" {
   tags                        = merge(each.value.tags, var.tags, local.cluster_required_tags)
   metadata_options            = var.metadata_options
   ignore_ami_changes          = true
+  ebs_optimized               = true
   
   # Create IAM profile if any AWS controller IAM policies are enabled
   create_iam_instance_profile = (
